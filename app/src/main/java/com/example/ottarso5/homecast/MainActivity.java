@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.Cast.MessageReceivedCallback;
@@ -19,13 +17,14 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 
 import java.io.IOException;
 
-
 /**
  * Main activity to send messages to the receiver.
  */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final String baseUrl = "https://homecast.mybluemix.net/";
 
 //    private static final int REQUEST_CODE_VOICE_RECOGNITION = 1;
 
@@ -95,50 +94,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // When the user clicks on the button, send the message
-        Button sendButton = (Button) findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText textField = (EditText)findViewById(R.id.editText);
-                sendMessage(textField.getText().toString());
-            }
-        });
-
         // Setup the CastContext
         mCastContext = CastContext.getSharedInstance(this);
         mCastContext.registerLifecycleCallbacksBeforeIceCreamSandwich(this, savedInstanceState);
-    }
 
-//    /*
-//     * Android voice recognition
-//     */
-//    private void startVoiceRecognitionActivity() {
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-//                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.message_to_cast));
-//        startActivityForResult(intent, REQUEST_CODE_VOICE_RECOGNITION);
-//    }
-//
-//    /*
-//     * Handle the voice recognition response
-//     *
-//     * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int,
-//     * android.content.Intent)
-//     */
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == REQUEST_CODE_VOICE_RECOGNITION && resultCode == RESULT_OK) {
-//            ArrayList<String> matches = data.getStringArrayListExtra(
-//                    RecognizerIntent.EXTRA_RESULTS);
-//            if (matches.size() > 0) {
-//                Log.d(TAG, matches.get(0));
-//                sendMessage(matches.get(0));
-//            }
-//        }
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
+        WebView webView = (WebView) findViewById(R.id.webview);
+        webView.loadUrl(baseUrl);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        webView.addJavascriptInterface(new WebAppInterface(this), "android");
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

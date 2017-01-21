@@ -4,9 +4,6 @@
     <string name="cast_app_id" translatable="false">21E4859A</string>
     <!--Google test site-->
     <!--<string name="cast_app_id" translatable="false">794B7BBF</string>-->
-    <string name="send">Send</string>
-    <string name="message_to_cast">Message to Cast</string>
     <string name="cast_namespace" translatable="false">urn:x-cast:com.google.cast.sample.helloworld</string>
     <string name="media_route_menu_title">Play on</string>
-    <string name="type_here">Type here…</string>
 </resources>
