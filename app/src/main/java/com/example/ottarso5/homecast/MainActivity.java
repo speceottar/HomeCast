@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CastContext mCastContext;
     private CastSession mCastSession;
-    private HelloWorldChannel mHelloWorldChannel;
+    private HomeCastChannel mHomeCastChannel;
 
     private SessionManagerListener<CastSession> mSessionManagerListener
             = new SessionManagerListener<CastSession>() {
@@ -148,28 +148,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startCustomMessageChannel() {
-        if (mCastSession != null && mHelloWorldChannel == null) {
-            mHelloWorldChannel = new HelloWorldChannel(getString(R.string.cast_namespace));
+        if (mCastSession != null && mHomeCastChannel == null) {
+            mHomeCastChannel = new HomeCastChannel(getString(R.string.cast_namespace));
             try {
-                mCastSession.setMessageReceivedCallbacks(mHelloWorldChannel.getNamespace(),
-                        mHelloWorldChannel);
+                mCastSession.setMessageReceivedCallbacks(mHomeCastChannel.getNamespace(),
+                        mHomeCastChannel);
                 Log.d(TAG, "Message channel started");
             } catch (IOException e) {
                 Log.d(TAG, "Error starting message channel", e);
-                mHelloWorldChannel = null;
+                mHomeCastChannel = null;
             }
         }
     }
 
     private void closeCustomMessageChannel() {
-        if (mCastSession != null && mHelloWorldChannel != null) {
+        if (mCastSession != null && mHomeCastChannel != null) {
             try {
-                mCastSession.removeMessageReceivedCallbacks(mHelloWorldChannel.getNamespace());
+                mCastSession.removeMessageReceivedCallbacks(mHomeCastChannel.getNamespace());
                 Log.d(TAG, "Message channel closed");
             } catch (IOException e) {
                 Log.d(TAG, "Error closing message channel", e);
             } finally {
-                mHelloWorldChannel = null;
+                mHomeCastChannel = null;
             }
         }
     }
@@ -178,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
      * Send a message to the receiver app
      */
     private void sendMessage(String message) {
-        if (mHelloWorldChannel != null) {
-            mCastSession.sendMessage(mHelloWorldChannel.getNamespace(), message);
+        if (mHomeCastChannel != null) {
+            mCastSession.sendMessage(mHomeCastChannel.getNamespace(), message);
         } else {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
@@ -188,14 +188,14 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Custom message channel
      */
-    static class HelloWorldChannel implements MessageReceivedCallback {
+    static class HomeCastChannel implements MessageReceivedCallback {
 
         private final String mNamespace;
 
         /**
          * @param namespace the namespace used for sending messages
          */
-        HelloWorldChannel(String namespace) {
+        HomeCastChannel(String namespace) {
             mNamespace = namespace;
         }
 
