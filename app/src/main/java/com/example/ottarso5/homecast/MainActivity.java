@@ -1,6 +1,9 @@
 package com.example.ottarso5.homecast;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -31,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
 //    private static final String baseUrl = "https://homecast.mybluemix.net/receiver";
-//    private static final String baseUrl = "http://35.22.57.197:3000/sender";
-    private static final String baseUrl = "http://35.22.56.163:3000/sender";
+    private static final String baseUrl = "http://35.22.57.197:3000/sender";
+//    private static final String baseUrl = "http://35.22.56.163:3000/sender";
 
     private String pendingMessage = null;
 
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private CastContext mCastContext;
     private CastSession mCastSession;
     private HomeCastChannel mHomeCastChannel;
+//    private NotificationReceiver nReceiver;
+
 
     private SessionManagerListener<CastSession> mSessionManagerListener
             = new SessionManagerListener<CastSession>() {
@@ -113,6 +118,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, Integer.toString(i));
             }
         });
+
+//        nReceiver = new NotificationReceiver();
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("com.example.ottarso5.homecast");
+//        registerReceiver(nReceiver,filter);
     }
 
     @Override
@@ -158,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         cleanupSession();
+//        unregisterReceiver(nReceiver);
+
     }
 
     private void cleanupSession() {
@@ -279,4 +291,18 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
+
+    class NotificationReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String temp = intent.getStringExtra("notification_event");
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage("{'action': 'update', 'text': " + temp + "}");
+                }
+            });
+        }
+    }
+
 }
