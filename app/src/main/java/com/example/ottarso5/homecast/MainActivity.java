@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
 //    private static final String baseUrl = "https://homecast.mybluemix.net/receiver";
-    private static final String baseUrl = "http://35.22.57.197:3000/sender";
+//    private static final String baseUrl = "http://35.22.57.197:3000/sender";
+    private static final String baseUrl = "http://35.22.56.163:3000/sender";
 
     private String pendingMessage = null;
 
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
     /*
      * Send a message to the receiver app
      */
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
         if (mHomeCastChannel != null) {
             mCastSession.sendMessage(mHomeCastChannel.getNamespace(), message);
             Log.i(TAG, "Message sent: " + message);
