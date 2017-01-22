@@ -3,7 +3,6 @@ package com.example.ottarso5.homecast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,9 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-//    private static final String baseUrl = "https://homecast.mybluemix.net/receiver";
-    private static final String baseUrl = "http://35.22.57.197:3000/sender";
-//    private static final String baseUrl = "http://35.22.56.163:3000/sender";
+    private static final String baseUrl = "https://homecast.mybluemix.net/sender";
 
     private String pendingMessage = null;
 
