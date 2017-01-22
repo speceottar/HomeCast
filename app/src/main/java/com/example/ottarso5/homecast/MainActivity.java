@@ -1,11 +1,14 @@
 package com.example.ottarso5.homecast;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.Cast.MessageReceivedCallback;
@@ -13,9 +16,12 @@ import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.CastStateListener;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 
 import java.io.IOException;
+
+//import android.support.v7.app.ActionBar;
 
 /**
  * Main activity to send messages to the receiver.
@@ -24,7 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String baseUrl = "https://homecast.mybluemix.net/";
+//    private static final String baseUrl = "https://homecast.mybluemix.net/receiver";
+    private static final String baseUrl = "http://35.22.57.197:3000/sender";
+
+    private String pendingMessage = null;
 
 //    private static final int REQUEST_CODE_VOICE_RECOGNITION = 1;
 
@@ -97,14 +106,12 @@ public class MainActivity extends AppCompatActivity {
         // Setup the CastContext
         mCastContext = CastContext.getSharedInstance(this);
         mCastContext.registerLifecycleCallbacksBeforeIceCreamSandwich(this, savedInstanceState);
-
-        WebView webView = (WebView) findViewById(R.id.webview);
-        webView.loadUrl(baseUrl);
-
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-
-        webView.addJavascriptInterface(new WebAppInterface(this), "android");
+        mCastContext.addCastStateListener(new CastStateListener() {
+            @Override
+            public void onCastStateChanged(int i) {
+                Log.d(TAG, Integer.toString(i));
+            }
+        });
     }
 
     @Override
@@ -126,6 +133,16 @@ public class MainActivity extends AppCompatActivity {
             // Get the current session if there is one
             mCastSession = mCastContext.getSessionManager().getCurrentCastSession();
         }
+
+        WebView webView = (WebView) findViewById(R.id.webview);
+        webView.setWebViewClient(new WebViewClient());
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        webView.loadUrl(baseUrl);
+
+        webView.addJavascriptInterface(new WebAppInterface(this), "android");
     }
 
     @Override
@@ -153,6 +170,10 @@ public class MainActivity extends AppCompatActivity {
             try {
                 mCastSession.setMessageReceivedCallbacks(mHomeCastChannel.getNamespace(),
                         mHomeCastChannel);
+                if(pendingMessage != null) {
+                    sendMessage(pendingMessage);
+                    pendingMessage = null;
+                }
                 Log.d(TAG, "Message channel started");
             } catch (IOException e) {
                 Log.d(TAG, "Error starting message channel", e);
@@ -180,8 +201,11 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessage(String message) {
         if (mHomeCastChannel != null) {
             mCastSession.sendMessage(mHomeCastChannel.getNamespace(), message);
+            Log.i(TAG, "Message sent: " + message);
         } else {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Pending message : " + message);
+            pendingMessage = message;
+
         }
     }
 
@@ -216,4 +240,42 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private class WebAppInterface {
+        Context mContext;
+
+        /** Instantiate the interface and set the context */
+        WebAppInterface(Context c) {
+            mContext = c;
+        }
+
+        /** Show a toast from the web page */
+        @JavascriptInterface
+        public void showToast(String toast) {
+            Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+        }
+
+        /** Login */
+        @JavascriptInterface
+        public void login(String session) {
+            final String jsonString = "{ \"action\" : \"login\", \"user\" : " + session + "}";
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage(jsonString);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void update() {
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    sendMessage("{ \"action\" : \"update\" }");
+                }
+            });
+        }
+    }
 }
