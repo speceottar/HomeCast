@@ -6,4 +6,11 @@
     <!--<string name="cast_app_id" translatable="false">794B7BBF</string>-->
     <string name="cast_namespace" translatable="false">urn:x-cast:com.google.cast.sample.helloworld</string>
     <string name="media_route_menu_title">Play on</string>
+    <string name="server_menu_string">Server Address</string>
+    <string name="address">Server Address</string>
+    <string name="dialog_message">Enter the address of the server to connect:</string>
+    <string name="dialog_title">Server Address</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="server_address_title">Title</string>
 </resources>

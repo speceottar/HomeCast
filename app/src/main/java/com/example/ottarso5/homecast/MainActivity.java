@@ -1,16 +1,21 @@
 package com.example.ottarso5.homecast;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.Cast.MessageReceivedCallback;
@@ -32,9 +37,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private static final String baseUrl = "https://homecast.mybluemix.net/sender";
+    private String baseUrl = "https://homecast.mybluemix.net/sender";
 
     private String pendingMessage = null;
+
+    private WebView webView;
 
 //    private static final int REQUEST_CODE_VOICE_RECOGNITION = 1;
 
@@ -132,6 +139,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.ip_menu_item:
+                showAddressAlertPopup();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showAddressAlertPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.server_address_title);
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        input.setText(baseUrl);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                baseUrl = input.getText().toString();
+                webView.loadUrl(baseUrl);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         // Register cast session listener
@@ -142,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             mCastSession = mCastContext.getSessionManager().getCurrentCastSession();
         }
 
-        WebView webView = (WebView) findViewById(R.id.webview);
+        webView = (WebView) findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient());
 
         WebSettings webSettings = webView.getSettings();
